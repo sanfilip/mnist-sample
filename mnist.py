@@ -17,13 +17,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import base64
-import json
 import os
 
 from absl import app as absl_app
 from absl import flags
 import tensorflow as tf  # pylint: disable=g-bad-import-order
+
+gradient_sdk = True
+try:
+    from gradient_sdk import get_tf_config
+except ImportError:
+    print("Gradient SDK not installed. Distributed training is not possible")
+    gradient_sdk = False
 
 import dataset
 from utils.flags import core as flags_core
@@ -32,6 +37,7 @@ from utils.misc import distribution_utils
 from utils.misc import model_helpers
 
 LEARNING_RATE = 1e-4
+FLAGS = flags.FLAGS
 
 
 def create_model(data_format):
@@ -82,42 +88,27 @@ def create_model(data_format):
         ])
 
 
-def get_tf_config():
-    tf_config = os.environ.get('TF_CONFIG')
-    if not tf_config:
-        return
-    return json.loads(tf_config)
-
-
-def get_paperspace_tf_config():
-    tf_config = os.environ.get('TF_CONFIG')
-    if not tf_config:
-        return
-    paperspace_tf_config = json.loads(base64.urlsafe_b64decode(tf_config).decode('utf-8'))
-
-    tf.logging.debug(str(paperspace_tf_config))
-    return paperspace_tf_config
-
-
-def set_tf_config():
-    tf_config = get_paperspace_tf_config()
-    if tf_config:
-        os.environ['TF_CONFIG'] = json.dumps(tf_config)
-
-
 def define_mnist_flags():
+    flags.DEFINE_integer('eval_secs', os.environ.get('EVAL_SECS', 600), 'How frequently to run evaluation step')
+    flags.DEFINE_integer('ckpt_steps', os.environ.get('CKPT_STEPS', 600), 'How frequently to save a model checkpoin')
+    flags.DEFINE_integer('max_ckpts', 5, 'Maximum number of checkpoints to keep')
+    flags.DEFINE_integer('max_steps', os.environ.get('MAX_STEPS', 150000), 'Max steps')
+    flags.DEFINE_integer('save_summary_steps', 100, 'How frequently to save TensorBoard summaries')
+    flags.DEFINE_integer('log_step_count_steps', 100, 'How frequently to log loss & global steps/s')
     flags_core.define_base()
     flags_core.define_performance(num_parallel_calls=False)
     flags_core.define_image()
     data_dir = os.path.abspath(os.environ.get('PS_JOBSPACE', os.getcwd()) + '/data')
     model_dir = os.path.abspath(os.environ.get('PS_MODEL_PATH', os.getcwd() + '/models') + '/mnist')
+    export_dir = os.path.abspath(os.environ.get('PS_MODEL_PATH', os.getcwd() + '/models'))
     flags.adopt_module_key_flags(flags_core)
     flags_core.set_defaults(data_dir=data_dir,
                             model_dir=model_dir,
-                            export_dir=os.environ.get('PS_MODEL_PATH', os.getcwd() + '/models'),
-                            batch_size=int(os.environ.get('batch_size', 100)),
-                            epochs_between_evals=20,
-                            train_epochs=int(os.environ.get('train_epochs', 40)))
+                            export_dir=export_dir,
+                            train_epochs=int(os.environ.get('TRAIN_EPOCHS', 40)),
+                            epochs_between_evals=int(os.environ.get('EPOCHS_EVAL', 100)),
+                            batch_size=int(os.environ.get('BATCH_SIZE', 100)),
+                            )
 
 
 def model_fn(features, labels, mode, params):
@@ -155,6 +146,8 @@ def model_fn(features, labels, mode, params):
         # Save accuracy scalar to Tensorboard output.
         tf.summary.scalar('train_accuracy', accuracy[1])
 
+        tf.summary.scalar('loss', loss)
+
         return tf.estimator.EstimatorSpec(
             mode=tf.estimator.ModeKeys.TRAIN,
             loss=loss,
@@ -162,6 +155,9 @@ def model_fn(features, labels, mode, params):
     if mode == tf.estimator.ModeKeys.EVAL:
         logits = model(image, training=False)
         loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+
+        tf.summary.scalar('eval_loss', loss)
+
         return tf.estimator.EstimatorSpec(
             mode=tf.estimator.ModeKeys.EVAL,
             loss=loss,
@@ -189,7 +185,13 @@ def run_mnist(flags_obj):
         flags_core.get_num_gpus(flags_obj), flags_obj.all_reduce_alg)
 
     run_config = tf.estimator.RunConfig(
-        train_distribute=distribution_strategy, session_config=session_config)
+        train_distribute=distribution_strategy,
+        session_config=session_config,
+        save_checkpoints_steps=flags_obj.ckpt_steps,
+        keep_checkpoint_max=flags_obj.max_ckpts,
+        save_summary_steps=flags_obj.save_summary_steps,
+        log_step_count_steps=flags_obj.log_step_count_steps
+    )
 
     data_format = flags_obj.data_format
     if data_format is None:
@@ -227,21 +229,27 @@ def run_mnist(flags_obj):
         flags_obj.hooks, model_dir=flags_obj.model_dir,
         batch_size=flags_obj.batch_size)
 
-    train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, hooks=train_hooks, max_steps=15000)
+    train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, hooks=train_hooks, max_steps=flags_obj.max_steps)
     eval_spec = tf.estimator.EvalSpec(input_fn=eval_input_fn, steps=None,
-                                      start_delay_secs=0,
-                                      throttle_secs=60)
+                                      start_delay_secs=10,
+                                      throttle_secs=flags_obj.eval_secs)
 
     tf.estimator.train_and_evaluate(mnist_classifier, train_spec, eval_spec)
 
-    # Export the model
-    if flags_obj.export_dir is not None:
+    # Export the model if node is master and export_dir is set and if experiment is multinode - check if its master
+    if os.environ.get('PS_CONFIG') and os.environ.get('TYPE') != 'master':
+        tf.logging.debug('No model was exported')
+        return
+
+    if flags_obj.export_dir:
+        tf.logging.debug('Starting to Export model to {}'.format(str(flags_obj.export_dir)))
         image = tf.placeholder(tf.float32, [None, 28, 28])
         input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
             'image': image,
         })
         mnist_classifier.export_savedmodel(flags_obj.export_dir, input_fn,
                                            strip_default_attrs=True)
+        tf.logging.debug('Model Exported')
 
 
 def main(_):
@@ -249,7 +257,18 @@ def main(_):
 
 
 if __name__ == '__main__':
-    tf.logging.set_verbosity(tf.logging.INFO)
-    set_tf_config()
+
+    tf.logging.set_verbosity(tf.logging.DEBUG)
+
+    if gradient_sdk:
+        try:
+            get_tf_config()
+        except:
+            pass
     define_mnist_flags()
+    # Print ENV Variables
+    tf.logging.debug('=' * 20 + ' Environment Variables ' + '=' * 20)
+    for k, v in os.environ.items():
+        tf.logging.debug('{}: {}'.format(k, v))
+
     absl_app.run(main)
