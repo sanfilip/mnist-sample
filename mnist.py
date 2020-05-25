@@ -23,6 +23,13 @@ from absl import app as absl_app
 from absl import flags
 import tensorflow as tf  # pylint: disable=g-bad-import-order
 
+from tensorflow.compat.v1 import InteractiveSession
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+# next line is optional, but may be needed to fix error: failed to allocate ... CUDA_ERROR_OUT_OF_MEMORY: out of memory
+#config.gpu_options.per_process_gpu_memory_fraction=0.85 # for 2070 Super 8GB; may need to drop to 0.70 for 2080 Ti 11GB
+session = InteractiveSession(config=config)
+
 gradient_sdk = True
 try:
     from gradient_sdk import get_tf_config
