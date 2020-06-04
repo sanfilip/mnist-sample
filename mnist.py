@@ -24,7 +24,7 @@ from absl import flags
 import tensorflow as tf  # pylint: disable=g-bad-import-order
 
 from tensorflow.compat.v1 import InteractiveSession
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 # next line is optional, but may be needed to fix error: failed to allocate ... CUDA_ERROR_OUT_OF_MEMORY: out of memory
 #config.gpu_options.per_process_gpu_memory_fraction=0.85 # for 2070 Super 8GB; may need to drop to 0.70 for 2080 Ti 11GB
@@ -45,7 +45,6 @@ from utils.misc import model_helpers
 
 LEARNING_RATE = 1e-4
 FLAGS = flags.FLAGS
-
 
 def create_model(data_format):
     """Model to recognize digits in the MNIST dataset.
@@ -138,11 +137,11 @@ def model_fn(features, labels, mode, params):
                 'classify': tf.estimator.export.PredictOutput(predictions)
             })
     if mode == tf.estimator.ModeKeys.TRAIN:
-        optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
         logits = model(image, training=True)
-        loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
-        accuracy = tf.metrics.accuracy(
+        loss = tf.compat.v1.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+        accuracy = tf.compat.v1.metrics.accuracy(
             labels=labels, predictions=tf.argmax(logits, axis=1))
 
         # Name tensors to be logged with LoggingTensorHook.
@@ -158,10 +157,10 @@ def model_fn(features, labels, mode, params):
         return tf.estimator.EstimatorSpec(
             mode=tf.estimator.ModeKeys.TRAIN,
             loss=loss,
-            train_op=optimizer.minimize(loss, tf.train.get_or_create_global_step()))
+            train_op=optimizer.minimize(loss, tf.compat.v1.train.get_or_create_global_step()))
     if mode == tf.estimator.ModeKeys.EVAL:
         logits = model(image, training=False)
-        loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+        loss = tf.compat.v1.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
         tf.summary.scalar('eval_loss', loss)
 
@@ -170,10 +169,9 @@ def model_fn(features, labels, mode, params):
             loss=loss,
             eval_metric_ops={
                 'accuracy':
-                    tf.metrics.accuracy(
+                    tf.compat.v1.metrics.accuracy(
                         labels=labels, predictions=tf.argmax(logits, axis=1)),
             })
-
 
 def run_mnist(flags_obj):
     """Run MNIST training and eval loop.
@@ -183,7 +181,7 @@ def run_mnist(flags_obj):
     model_helpers.apply_clean(flags_obj)
     model_function = model_fn
 
-    session_config = tf.ConfigProto(
+    session_config = tf.compat.v1.ConfigProto(
         inter_op_parallelism_threads=flags_obj.inter_op_parallelism_threads,
         intra_op_parallelism_threads=flags_obj.intra_op_parallelism_threads,
         allow_soft_placement=True)
@@ -204,7 +202,7 @@ def run_mnist(flags_obj):
     if data_format is None:
         data_format = ('channels_first'
                        if tf.test.is_built_with_cuda() else 'channels_last')
-    mnist_classifier = tf.estimator.Estimator(
+    mnist_classifier = tf.compat.v1.estimator.Estimator(
         model_fn=model_function,
         model_dir=flags_obj.model_dir,
         config=run_config,
@@ -229,7 +227,7 @@ def run_mnist(flags_obj):
 
     def eval_input_fn():
         return dataset.test(flags_obj.data_dir).batch(
-            flags_obj.batch_size).make_one_shot_iterator().get_next()
+            flags_obj.batch_size).take(1)
 
     # Set up hook that outputs training logs every 100 steps.
     train_hooks = hooks_helper.get_train_hooks(
@@ -249,14 +247,16 @@ def run_mnist(flags_obj):
         return
 
     if flags_obj.export_dir:
-        tf.logging.debug('Starting to Export model to {}'.format(str(flags_obj.export_dir)))
-        image = tf.placeholder(tf.float32, [None, 28, 28])
+        tf.compat.v1.logging.debug('Starting to Export model to {}'.format(str(flags_obj.export_dir)))
+        #tf.compat.v1.disable_eager_execution()
+        #image = tf.compat.v1.placeholder(tf.float32, [None, 28, 28])
+        image = tf.zeros(dtype=tf.float32, shape=tf.TensorShape([28, 28]))
         input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
             'image': image,
         })
         mnist_classifier.export_savedmodel(flags_obj.export_dir, input_fn,
                                            strip_default_attrs=True)
-        tf.logging.debug('Model Exported')
+        tf.compat.v1.logging.debug('Model Exported')
 
 
 def main(_):
@@ -265,7 +265,7 @@ def main(_):
 
 if __name__ == '__main__':
 
-    tf.logging.set_verbosity(tf.logging.DEBUG)
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.DEBUG)
 
     if gradient_sdk:
         try:
@@ -274,8 +274,8 @@ if __name__ == '__main__':
             pass
     define_mnist_flags()
     # Print ENV Variables
-    tf.logging.debug('=' * 20 + ' Environment Variables ' + '=' * 20)
+    tf.compat.v1.logging.debug('=' * 20 + ' Environment Variables ' + '=' * 20)
     for k, v in os.environ.items():
-        tf.logging.debug('{}: {}'.format(k, v))
+        tf.compat.v1.logging.debug('{}: {}'.format(k, v))
 
     absl_app.run(main)
