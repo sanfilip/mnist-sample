@@ -1,0 +1,449 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 41 files
+Detected 18 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: mnist-sample/mnist_grpc_client.py
+--------------------------------------------------------------------------------
+mnist-sample/mnist_grpc_client.py:117:41: ERROR: Using member tf.contrib.util.make_tensor_proto in deprecated module tf.contrib. tf.contrib.util.make_tensor_proto cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+File: mnist-sample/mnist.py
+--------------------------------------------------------------------------------
+mnist-sample/mnist.py:231:15: WARNING: Changing dataset.make_one_shot_iterator() to tf.compat.v1.data.make_one_shot_iterator(dataset). Please check this transformation.
+
+mnist-sample/mnist.py:257:8: ERROR: *.export_savedmodel requires manual check. (Manual edit required) Please rename the method export_savedmodel() to export_saved_model(). Two things to note:
+	(1) The argument strip_default_attributes has been removed. The function will always strip the default attributes from ops. If this breaks your code, please switch to tf.compat.v1.estimator.Estimator.
+	(2) This change only effects core estimator. If you are using tf.contrib.learn.Estimator, please switch to using core estimator.
+--------------------------------------------------------------------------------
+File: mnist-sample/utils/misc/distribution_utils.py
+--------------------------------------------------------------------------------
+mnist-sample/utils/misc/distribution_utils.py:47:13: ERROR: tf.contrib.distribute.OneDeviceStrategy requires manual check. (Manual edit required) tf.contrib.distribute.OneDeviceStrategy has been migrated to tf.distribute.OneDeviceStrategy. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+mnist-sample/utils/misc/distribution_utils.py:47:13: WARNING: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+mnist-sample/utils/misc/distribution_utils.py:47:13: ERROR: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib. tf.contrib.distribute.OneDeviceStrategy cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+mnist-sample/utils/misc/distribution_utils.py:52:13: ERROR: tf.contrib.distribute.OneDeviceStrategy requires manual check. (Manual edit required) tf.contrib.distribute.OneDeviceStrategy has been migrated to tf.distribute.OneDeviceStrategy. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+mnist-sample/utils/misc/distribution_utils.py:52:13: WARNING: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+mnist-sample/utils/misc/distribution_utils.py:52:13: ERROR: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib. tf.contrib.distribute.OneDeviceStrategy cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+mnist-sample/utils/misc/distribution_utils.py:60:13: WARNING: tf.distribute.MirroredStrategy requires manual check. (Manual edit may be required) tf.distribute.MirroredStrategy API has changed. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+mnist-sample/utils/misc/distribution_utils.py:62:27: WARNING: Using member tf.contrib.distribute.AllReduceCrossDeviceOps in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+mnist-sample/utils/misc/distribution_utils.py:62:27: ERROR: Using member tf.contrib.distribute.AllReduceCrossDeviceOps in deprecated module tf.contrib. tf.contrib.distribute.AllReduceCrossDeviceOps cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+mnist-sample/utils/misc/distribution_utils.py:65:13: WARNING: tf.distribute.MirroredStrategy requires manual check. (Manual edit may be required) tf.distribute.MirroredStrategy API has changed. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+--------------------------------------------------------------------------------
+File: mnist-sample/utils/testing/reference_data.py
+--------------------------------------------------------------------------------
+mnist-sample/utils/testing/reference_data.py:182:6: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+File: mnist-sample/utils/accelerator/tpu.py
+--------------------------------------------------------------------------------
+mnist-sample/utils/accelerator/tpu.py:61:9: WARNING: tf.contrib.summary.create_file_writer requires manual check. tf.contrib.summary.create_file_writer() has been ported to the new tf.compat.v2.summary.create_file_writer(), which no longer re-uses existing event files for the same logdir; instead it always opens a new writer/file. The python writer objects must be re-used explicitly if the reusing behavior is desired.
+mnist-sample/utils/accelerator/tpu.py:65:10: WARNING: tf.contrib.summary.scalar requires manual check. tf.contrib.summary.* functions have been migrated best-effort to tf.compat.v2.summary.* equivalents where possible, but the resulting code is not guaranteed to work, so please check carefully. For more information about the new summary API, see the Effective TF 2.0 migration document or check the updated TensorBoard tutorials.
+mnist-sample/utils/accelerator/tpu.py:67:15: WARNING: tf.contrib.summary.all_summary_ops requires manual check. tf.contrib.summary.* functions have been migrated best-effort to tf.compat.v2.summary.* equivalents where possible, but the resulting code is not guaranteed to work, so please check carefully. For more information about the new summary API, see the Effective TF 2.0 migration document or check the updated TensorBoard tutorials.
+--------------------------------------------------------------------------------
+File: mnist-sample/utils/accelerator/tpu_test.py
+--------------------------------------------------------------------------------
+mnist-sample/utils/accelerator/tpu_test.py:62:19: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: 'mnist-sample'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/__init__.py'
+ outputting to 'mnist-sample_v2/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/mnist_grpc_client.py'
+ outputting to 'mnist-sample_v2/mnist_grpc_client.py'
+--------------------------------------------------------------------------------
+
+33:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+35:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+36:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+37:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+38:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+39:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+40:0: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+41:8: INFO: Renamed 'tf.app.flags' to 'tf.compat.v1.app.flags'
+117:41: ERROR: Using member tf.contrib.util.make_tensor_proto in deprecated module tf.contrib. tf.contrib.util.make_tensor_proto cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/mnist.py'
+ outputting to 'mnist-sample_v2/mnist.py'
+--------------------------------------------------------------------------------
+
+27:9: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+131:23: INFO: Added keywords to args of function 'tf.argmax'
+141:20: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+144:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+144:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+145:19: INFO: tf.metrics.accuracy requires manual check. tf.metrics have been replaced with object oriented versions in TF 2.0 and after. The metric function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+145:19: INFO: Renamed 'tf.metrics.accuracy' to 'tf.compat.v1.metrics.accuracy'
+146:39: INFO: Added keywords to args of function 'tf.argmax'
+154:8: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+154:8: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+156:8: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+156:8: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+161:46: INFO: Renamed 'tf.train.get_or_create_global_step' to 'tf.compat.v1.train.get_or_create_global_step'
+164:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+164:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+166:8: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+166:8: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+173:20: INFO: tf.metrics.accuracy requires manual check. tf.metrics have been replaced with object oriented versions in TF 2.0 and after. The metric function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+173:20: INFO: Renamed 'tf.metrics.accuracy' to 'tf.compat.v1.metrics.accuracy'
+174:51: INFO: Added keywords to args of function 'tf.argmax'
+186:21: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+231:15: WARNING: Changing dataset.make_one_shot_iterator() to tf.compat.v1.data.make_one_shot_iterator(dataset). Please check this transformation.
+
+248:8: INFO: Renamed 'tf.logging.debug' to 'tf.compat.v1.logging.debug'
+252:8: INFO: Renamed 'tf.logging.debug' to 'tf.compat.v1.logging.debug'
+253:16: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+257:8: ERROR: *.export_savedmodel requires manual check. (Manual edit required) Please rename the method export_savedmodel() to export_saved_model(). Two things to note:
+	(1) The argument strip_default_attributes has been removed. The function will always strip the default attributes from ops. If this breaks your code, please switch to tf.compat.v1.estimator.Estimator.
+	(2) This change only effects core estimator. If you are using tf.contrib.learn.Estimator, please switch to using core estimator.
+259:8: INFO: Renamed 'tf.logging.debug' to 'tf.compat.v1.logging.debug'
+268:4: INFO: Renamed 'tf.logging.set_verbosity' to 'tf.compat.v1.logging.set_verbosity'
+268:29: INFO: Renamed 'tf.logging.DEBUG' to 'tf.compat.v1.logging.DEBUG'
+277:4: INFO: Renamed 'tf.logging.debug' to 'tf.compat.v1.logging.debug'
+279:8: INFO: Renamed 'tf.logging.debug' to 'tf.compat.v1.logging.debug'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/serving_rest_client_test.py'
+ outputting to 'mnist-sample_v2/serving_rest_client_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/dataset.py'
+ outputting to 'mnist-sample_v2/dataset.py'
+--------------------------------------------------------------------------------
+
+38:7: INFO: Renamed 'tf.gfile.Open' to 'tf.io.gfile.GFile'
+54:7: INFO: Renamed 'tf.gfile.Open' to 'tf.io.gfile.GFile'
+65:5: INFO: Renamed 'tf.gfile.Exists' to 'tf.io.gfile.exists'
+67:9: INFO: Renamed 'tf.gfile.Exists' to 'tf.io.gfile.exists'
+68:4: INFO: Renamed 'tf.gfile.MakeDirs' to 'tf.io.gfile.makedirs'
+75:6: INFO: Renamed 'tf.gfile.Open' to 'tf.io.gfile.GFile'
+92:12: INFO: Renamed 'tf.decode_raw' to 'tf.io.decode_raw'
+98:12: INFO: Renamed 'tf.decode_raw' to 'tf.io.decode_raw'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/__init__.py'
+ outputting to 'mnist-sample_v2/utils/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/misc/__init__.py'
+ outputting to 'mnist-sample_v2/utils/misc/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/misc/distribution_utils.py'
+ outputting to 'mnist-sample_v2/utils/misc/distribution_utils.py'
+--------------------------------------------------------------------------------
+
+47:13: ERROR: tf.contrib.distribute.OneDeviceStrategy requires manual check. (Manual edit required) tf.contrib.distribute.OneDeviceStrategy has been migrated to tf.distribute.OneDeviceStrategy. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+47:13: WARNING: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+47:13: ERROR: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib. tf.contrib.distribute.OneDeviceStrategy cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+52:13: ERROR: tf.contrib.distribute.OneDeviceStrategy requires manual check. (Manual edit required) tf.contrib.distribute.OneDeviceStrategy has been migrated to tf.distribute.OneDeviceStrategy. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+52:13: WARNING: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+52:13: ERROR: Using member tf.contrib.distribute.OneDeviceStrategy in deprecated module tf.contrib. tf.contrib.distribute.OneDeviceStrategy cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+60:13: WARNING: tf.distribute.MirroredStrategy requires manual check. (Manual edit may be required) tf.distribute.MirroredStrategy API has changed. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+62:27: WARNING: Using member tf.contrib.distribute.AllReduceCrossDeviceOps in deprecated module tf.contrib.distribute. (Manual edit required) tf.contrib.distribute.* have been migrated to tf.distribute.*. Please check out the new module for updated APIs.
+62:27: ERROR: Using member tf.contrib.distribute.AllReduceCrossDeviceOps in deprecated module tf.contrib. tf.contrib.distribute.AllReduceCrossDeviceOps cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+65:13: WARNING: tf.distribute.MirroredStrategy requires manual check. (Manual edit may be required) tf.distribute.MirroredStrategy API has changed. If you're using the strategy with a custom training loop, note the following changes in methods: make_dataset_iterator->experimental_distribute_dataset, experimental_make_numpy_iterator->experimental_make_numpy_dataset, extended.call_for_each_replica->run, reduce requires an axis argument, unwrap->experimental_local_results experimental_initialize and experimental_finalize no longer needed 
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/misc/distribution_utils_test.py'
+ outputting to 'mnist-sample_v2/utils/misc/distribution_utils_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/misc/model_helpers_test.py'
+ outputting to 'mnist-sample_v2/utils/misc/model_helpers_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/misc/model_helpers.py'
+ outputting to 'mnist-sample_v2/utils/misc/model_helpers.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/__init__.py'
+ outputting to 'mnist-sample_v2/utils/flags/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_conventions.py'
+ outputting to 'mnist-sample_v2/utils/flags/_conventions.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_performance.py'
+ outputting to 'mnist-sample_v2/utils/flags/_performance.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_base.py'
+ outputting to 'mnist-sample_v2/utils/flags/_base.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_benchmark.py'
+ outputting to 'mnist-sample_v2/utils/flags/_benchmark.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/flags_test.py'
+ outputting to 'mnist-sample_v2/utils/flags/flags_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_misc.py'
+ outputting to 'mnist-sample_v2/utils/flags/_misc.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/_device.py'
+ outputting to 'mnist-sample_v2/utils/flags/_device.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/flags/core.py'
+ outputting to 'mnist-sample_v2/utils/flags/core.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/testing/__init__.py'
+ outputting to 'mnist-sample_v2/utils/testing/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/testing/integration.py'
+ outputting to 'mnist-sample_v2/utils/testing/integration.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/testing/reference_data.py'
+ outputting to 'mnist-sample_v2/utils/testing/reference_data.py'
+--------------------------------------------------------------------------------
+
+182:6: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/testing/mock_lib.py'
+ outputting to 'mnist-sample_v2/utils/testing/mock_lib.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/testing/reference_data_test.py'
+ outputting to 'mnist-sample_v2/utils/testing/reference_data_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/export/export.py'
+ outputting to 'mnist-sample_v2/utils/export/export.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/export/__init__.py'
+ outputting to 'mnist-sample_v2/utils/export/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/export/export_test.py'
+ outputting to 'mnist-sample_v2/utils/export/export_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/accelerator/__init__.py'
+ outputting to 'mnist-sample_v2/utils/accelerator/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/accelerator/tpu.py'
+ outputting to 'mnist-sample_v2/utils/accelerator/tpu.py'
+--------------------------------------------------------------------------------
+
+61:9: WARNING: tf.contrib.summary.create_file_writer requires manual check. tf.contrib.summary.create_file_writer() has been ported to the new tf.compat.v2.summary.create_file_writer(), which no longer re-uses existing event files for the same logdir; instead it always opens a new writer/file. The python writer objects must be re-used explicitly if the reusing behavior is desired.
+61:9: INFO: Renamed 'tf.contrib.summary.create_file_writer' to 'tf.compat.v2.summary.create_file_writer'
+63:11: INFO: Adding `True` argument to tf.contrib.summary.always_record_summaries in anticipation of it being renamed to tf.compat.v2.summary.record_if()
+63:11: INFO: Renamed 'tf.contrib.summary.always_record_summaries' to 'tf.compat.v2.summary.record_if'
+65:10: INFO: Added keywords to args of function 'tf.contrib.summary.scalar'
+65:10: INFO: Renamed keyword argument for tf.contrib.summary.scalar from tensor to data
+65:10: WARNING: tf.contrib.summary.scalar requires manual check. tf.contrib.summary.* functions have been migrated best-effort to tf.compat.v2.summary.* equivalents where possible, but the resulting code is not guaranteed to work, so please check carefully. For more information about the new summary API, see the Effective TF 2.0 migration document or check the updated TensorBoard tutorials.
+65:10: INFO: Renamed 'tf.contrib.summary.scalar' to 'tf.compat.v2.summary.scalar'
+67:15: WARNING: tf.contrib.summary.all_summary_ops requires manual check. tf.contrib.summary.* functions have been migrated best-effort to tf.compat.v2.summary.* equivalents where possible, but the resulting code is not guaranteed to work, so please check carefully. For more information about the new summary API, see the Effective TF 2.0 migration document or check the updated TensorBoard tutorials.
+67:15: INFO: Renamed 'tf.contrib.summary.all_summary_ops' to 'tf.compat.v1.summary.all_v2_summary_ops'
+101:7: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+101:7: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+112:14: INFO: Renamed 'tf.where' to 'tf.compat.v1.where'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/accelerator/tpu_test.py'
+ outputting to 'mnist-sample_v2/utils/accelerator/tpu_test.py'
+--------------------------------------------------------------------------------
+
+62:19: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/__init__.py'
+ outputting to 'mnist-sample_v2/utils/logs/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/logger_test.py'
+ outputting to 'mnist-sample_v2/utils/logs/logger_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/hooks_helper.py'
+ outputting to 'mnist-sample_v2/utils/logs/hooks_helper.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/mlperf_helper.py'
+ outputting to 'mnist-sample_v2/utils/logs/mlperf_helper.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/hooks_test.py'
+ outputting to 'mnist-sample_v2/utils/logs/hooks_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/metric_hook_test.py'
+ outputting to 'mnist-sample_v2/utils/logs/metric_hook_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/hooks.py'
+ outputting to 'mnist-sample_v2/utils/logs/hooks.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/hooks_helper_test.py'
+ outputting to 'mnist-sample_v2/utils/logs/hooks_helper_test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/metric_hook.py'
+ outputting to 'mnist-sample_v2/utils/logs/metric_hook.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'mnist-sample/utils/logs/logger.py'
+ outputting to 'mnist-sample_v2/utils/logs/logger.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
