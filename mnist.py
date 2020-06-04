@@ -250,12 +250,11 @@ def run_mnist(flags_obj):
 
     if flags_obj.export_dir:
         tf.compat.v1.logging.debug('Starting to Export model to {}'.format(str(flags_obj.export_dir)))
-        image = tf.compat.v1.placeholder(tf.float32, [None, 28, 28])
+        image = tf.zeros([1, 28, 28], tf.float32)
         input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
             'image': image,
         })
-        mnist_classifier.export_savedmodel(flags_obj.export_dir, input_fn,
-                                           strip_default_attrs=True)
+        mnist_classifier.export_saved_model(flags_obj.export_dir, input_fn)
         tf.compat.v1.logging.debug('Model Exported')
 
 
