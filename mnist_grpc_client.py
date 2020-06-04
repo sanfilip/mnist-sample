@@ -30,15 +30,15 @@ import time
 from random import randint
 
 logging.disable(logging.WARNING)
-tf.app.flags.DEFINE_integer('concurrency', 1,
+tf.compat.v1.app.flags.DEFINE_integer('concurrency', 1,
                             'maximum number of concurrent inference requests')
-tf.app.flags.DEFINE_integer('num_tests', 1, 'Number of test images')
-tf.app.flags.DEFINE_string('server', '', 'PredictionService host:port')
-tf.app.flags.DEFINE_string('work_dir', '/tmp', 'Working directory')
-tf.app.flags.DEFINE_string('model_name', 'mnist', 'Model name; specify "model" for Gradient')
-tf.app.flags.DEFINE_string('hostname_override', None, 'Hostname override')
-tf.app.flags.DEFINE_bool('insecure', False, 'Use insecure channel')
-FLAGS = tf.app.flags.FLAGS
+tf.compat.v1.app.flags.DEFINE_integer('num_tests', 1, 'Number of test images')
+tf.compat.v1.app.flags.DEFINE_string('server', '', 'PredictionService host:port')
+tf.compat.v1.app.flags.DEFINE_string('work_dir', '/tmp', 'Working directory')
+tf.compat.v1.app.flags.DEFINE_string('model_name', 'mnist', 'Model name; specify "model" for Gradient')
+tf.compat.v1.app.flags.DEFINE_string('hostname_override', None, 'Hostname override')
+tf.compat.v1.app.flags.DEFINE_bool('insecure', False, 'Use insecure channel')
+FLAGS = tf.compat.v1.app.flags.FLAGS
 
 _counter = 0
 _start = 0

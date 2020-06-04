@@ -58,13 +58,13 @@ def construct_scalar_host_call(metric_dict, model_dir, prefix=""):
       List of summary ops to run on the CPU host.
     """
     step = global_step[0]
-    with tf.contrib.summary.create_file_writer(
+    with tf.compat.v2.summary.create_file_writer(
         logdir=model_dir, filename_suffix=".host_call").as_default():
-      with tf.contrib.summary.always_record_summaries():
+      with tf.compat.v2.summary.record_if(True):
         for i, name in enumerate(metric_names):
-          tf.contrib.summary.scalar(prefix + name, args[i][0], step=step)
+          tf.compat.v2.summary.scalar(name=prefix + name, data=args[i][0], step=step)
 
-        return tf.contrib.summary.all_summary_ops()
+        return tf.compat.v1.summary.all_v2_summary_ops()
 
   # To log the current learning rate, and gradient norm for Tensorboard, the
   # summary op needs to be run on the host CPU via host_call. host_call
@@ -98,7 +98,7 @@ def embedding_matmul(embedding_table, values, mask, name="embedding_matmul"):
     Rank 3 tensor of embedding vectors.
   """
 
-  with tf.name_scope(name):
+  with tf.compat.v1.name_scope(name):
     n_embeddings = embedding_table.get_shape().as_list()[0]
     batch_size, padded_size = values.shape.as_list()
 
@@ -109,7 +109,7 @@ def embedding_matmul(embedding_table, values, mask, name="embedding_matmul"):
     col_idcs = tf.tile(
         tf.reshape(tf.range(n_embeddings), (1, 1, n_embeddings)),
         (batch_size, padded_size, 1))
-    one_hot = tf.where(
+    one_hot = tf.compat.v1.where(
         tf.equal(emb_idcs, col_idcs), emb_weights,
         tf.zeros((batch_size, padded_size, n_embeddings)))
 
