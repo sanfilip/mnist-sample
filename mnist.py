@@ -21,7 +21,8 @@ import os
 
 from absl import app as absl_app
 from absl import flags
-import tensorflow as tf  # pylint: disable=g-bad-import-order
+import tensorflow.compat.v1 as tf  # pylint: disable=g-bad-import-order
+tf.disable_v2_behavior()
 
 from tensorflow.compat.v1 import InteractiveSession
 config = tf.ConfigProto()

@@ -18,8 +18,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 def get_distribution_strategy(num_gpus,
                               all_reduce_alg=None,
@@ -44,12 +44,12 @@ def get_distribution_strategy(num_gpus,
     if turn_off_distribution_strategy:
       return None
     else:
-      return tf.contrib.distribute.OneDeviceStrategy("device:CPU:0")
+      return tf.compat.v1.distribute.OneDeviceStrategy("device:CPU:0")
   elif num_gpus == 1:
     if turn_off_distribution_strategy:
       return None
     else:
-      return tf.contrib.distribute.OneDeviceStrategy("device:GPU:0")
+      return tf.compat.v1.distribute.OneDeviceStrategy("device:GPU:0")
   elif turn_off_distribution_strategy:
     raise ValueError("When {} GPUs are specified, "
                      "turn_off_distribution_strategy flag cannot be set to"
@@ -59,7 +59,7 @@ def get_distribution_strategy(num_gpus,
     if all_reduce_alg:
       return tf.distribute.MirroredStrategy(
           devices=devices,
-          cross_device_ops=tf.contrib.distribute.AllReduceCrossDeviceOps(
+          cross_device_ops=tf.compat.v1.distribute.AllReduceCrossDeviceOps(
               all_reduce_alg, num_packs=2))
     else:
       return tf.distribute.MirroredStrategy(devices=devices)
