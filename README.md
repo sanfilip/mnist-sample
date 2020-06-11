@@ -187,7 +187,7 @@ python mnist.py --export_dir /tmp/mnist_saved_model
 
 If no export directory is specified, the model is saved to a timestamped directory under `./models` subdirectory (e.g. `mnist-sample/models/1513630966/`).
 
-## Testing a Tensorflow Serving-deployed model on Paperspace
+## Testing a Tensorflow Serving model deployment on Paperspace Gradient
 
 To test the prediction endpoint of a model deployed with Tensorflow Serving on Paperspace, run the following commands, replacing `your-deployment-id` with your deployment's id:
 
@@ -228,6 +228,28 @@ Once you've completed local testing using the tensorflow/serving docker containe
 ```
 docker ps
 docker kill <container-id-or-name>
+```
+
+## Using the gRPC Tensorflow Serving client sample
+
+To test the gRPC prediction endpoint of a model deployed with Tensorflow Serving on Paperspace, run the following commands, replacing `your-deployment-id` with your deployment's id:
+
+```
+pip install -r requirements_local_grpc.txt
+
+python mnist_grpc_client.py --server your-deployment-id.services.paperspace.io:443 --model_name model
+```
+
+### Running a local gRPC Tensorflow Serving Instance:
+
+```
+docker run --rm -it -p 8500:8500 -v /home/$USER/mnist-sample/models:/models/model tensorflow/serving:latest
+```
+
+and in another terminal window run
+
+```
+python mnist_grpc_client.py --server localhost:8500 --model_name model --insecure
 ```
 
 ## Training the model on a node with a GPU for use with Tensorflow Serving on a node with only a CPU
